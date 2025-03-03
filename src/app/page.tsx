@@ -19,6 +19,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [musdtBalance, setMusdtBalance] = useState<string | null>(null);
+  const [faucetBalance, setFaucetBalance] = useState<string | null>(null);
 
   const FAUCET_ADDRESS: string | undefined = process.env.NEXT_PUBLIC_FAUCET_ADDRESS;
   const MUSDT_ADDRESS: string | undefined = process.env.NEXT_PUBLIC_MUSDT_ADDRESS;
@@ -66,6 +67,7 @@ export default function Home() {
         params: [{ chainId: `0x${parseInt(CHAIN_ID!).toString(16)}` }],
       });
       await fetchBalance(accounts[0]);
+      await fetchFaucetBalance();
     } catch (error) {
       console.error('Connection error:', error);
       if (error instanceof Error && 'code' in error) {
@@ -96,6 +98,19 @@ export default function Home() {
     }
   }
 
+  async function fetchFaucetBalance() {
+    try {
+      const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
+      const musdtContract = new ethers.Contract(MUSDT_ADDRESS!, IERC20_ABI, provider);
+      const balance = await musdtContract.balanceOf(FAUCET_ADDRESS!);
+      const formattedBalance = ethers.utils.formatUnits(balance, 18);
+      setFaucetBalance(formattedBalance);
+    } catch (error) {
+      console.error('Error fetching faucet balance:', error);
+      setFaucetBalance('Error');
+    }
+  }
+
   async function requestTokens() {
     if (!isConnected) {
       setStatusMessage('Please connect your wallet first');
@@ -119,6 +134,7 @@ export default function Home() {
 
       setStatusMessage(`Success! 10,000 mUSDT sent. Tx: ${receipt.transactionHash}`);
       await fetchBalance(account);
+      await fetchFaucetBalance();
     } catch (error) {
       console.error('Token request error:', error);
       if (error instanceof Error) {
@@ -162,24 +178,32 @@ export default function Home() {
     return () => {
       window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
     };
-  }, [CHAIN_ID, fetchBalance]); // Added dependencies
+  }, [CHAIN_ID, fetchBalance]);
 
   useEffect(() => {
     if (isConnected && account) {
       fetchBalance(account);
+      fetchFaucetBalance();
     }
-  }, [account, isConnected, fetchBalance]); // Added fetchBalance
+  }, [account, isConnected, fetchBalance]);
+
+  useEffect(() => {
+    fetchFaucetBalance();
+  }, []);
 
   const hasEnoughFunds = musdtBalance ? parseFloat(musdtBalance) > 1000 : false;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-900 text-white">
+    <div className="min-h-screen flex flex-col bg-black text-white">
       <title>mUSDT Faucet</title>
       <meta name="description" content="Request mUSDT tokens for testing" />
 
-      <nav className="bg-gray-800 p-4">
-        <div className="max-w-7xl mx-auto">
+      <nav className="bg-black p-4 border-b border-gray-800">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold text-cyan-400">mUSDT Faucet by NexTrack</h1>
+          <p className="text-cyan-300 text-lg font-bold">
+            Faucet Balance: {faucetBalance === null ? 'Loading...' : `${Number(faucetBalance).toLocaleString()} mUSDT`}
+          </p>
         </div>
       </nav>
 
@@ -207,13 +231,12 @@ export default function Home() {
           <div className="mb-6">
             <p className="text-gray-300 mb-2">Connected: {account.substring(0, 6)}...{account.substring(account.length - 4)}</p>
             <p className="text-gray-300 mb-4">
-              mUSDT Balance: {musdtBalance === null ? 'Loading...' : musdtBalance + ' mUSDT'}
+              mUSDT Balance: {musdtBalance === null ? 'Loading...' : `${Number(musdtBalance).toLocaleString()} mUSDT`}
             </p>
             <button
               onClick={requestTokens}
               disabled={isLoading || hasEnoughFunds}
-              className={`bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition duration-200 ease-in-out transform hover:scale-105 ${(isLoading || hasEnoughFunds) ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+              className={`bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition duration-200 ease-in-out transform hover:scale-105 ${(isLoading || hasEnoughFunds) ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isLoading ? 'Processing...' : hasEnoughFunds ? 'You already have funds!' : 'Request 10,000 mUSDT!'}
             </button>
@@ -230,7 +253,7 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="bg-gray-800 p-4">
+      <footer className="bg-black p-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto text-center text-gray-400">
           Made with <span className="text-red-500">❤️</span> by{' '}
           <a
