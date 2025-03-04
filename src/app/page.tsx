@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { Space_Grotesk } from 'next/font/google';
+
+// Define the font with weights and subsets
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['400', '700'], // Regular and bold weights
+});
 
 export default function Home() {
   const [inputAddress, setInputAddress] = useState('');
@@ -185,10 +192,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white font-['Space_Grotesk']">
+    <div className={`min-h-screen flex flex-col bg-black text-white ${spaceGrotesk.className}`}>
       <title>Electroneum Faucet</title>
       <meta name="description" content="Request mUSDT tokens and ETN for testing" />
-  
+
       <nav className="bg-black p-4 border-b border-gray-800">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold text-cyan-400">ETN Mainnet Faucet by NexTrack</h1>
@@ -202,27 +209,27 @@ export default function Home() {
           </div>
         </div>
       </nav>
-  
+
       {/* Banner */}
-      {(faucetBalance !== null && faucetEtnBalance !== null && 
+      {(faucetBalance !== null && faucetEtnBalance !== null &&
         (parseFloat(faucetBalance) < 10000 || parseFloat(faucetEtnBalance) < 0.5)) && (
-        <div className="bg-red-900 text-xl text-red-100 p-4 text-center border-b border-red-700 font-bold">
-          <p>
-            Faucet is out of funds, please consider sending some to{' '}
-            <span className="font-mono">0xD2d3F84d881b4205f18fE933729689508c4dF653</span>{' '}
-            OR contact me on{' '}
-            <a
-              href="https://t.me/psy_tan"
-              className="text-cyan-300 hover:text-cyan-200 underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-            Telegram
-            </a>
-          </p>
-        </div>
-      )}
-  
+          <div className="bg-red-900 text-xl text-red-100 p-4 text-center border-b border-red-700 font-bold">
+            <p>
+              Faucet is out of funds, please consider sending some to{' '}
+              <span className="font-mono">0xD2d3F84d881b4205f18fE933729689508c4dF653</span>{' '}
+              OR contact me on{' '}
+              <a
+                href="https://t.me/psy_tan"
+                className="text-cyan-300 hover:text-cyan-200 underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Telegram
+              </a>
+            </p>
+          </div>
+        )}
+
       <main className="flex flex-col items-center justify-center w-full flex-1 px-4 sm:px-20 text-center">
         <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-cyan-400">
           Request <span className="text-white">10,000 mUSDT</span> and <span className="text-white">0.5 ETN</span> for checking out{' '}
@@ -234,9 +241,9 @@ export default function Home() {
           >
             NexTrack <ExternalLinkIcon />
           </a>
-          
+
         </h1>
-  
+
         <div className="mb-6 w-full max-w-md">
           <input
             type="text"
@@ -247,7 +254,7 @@ export default function Home() {
           />
           <button
             onClick={requestFunds}
-            disabled={isSending || (faucetBalance !== null && faucetEtnBalance !== null && 
+            disabled={isSending || (faucetBalance !== null && faucetEtnBalance !== null &&
               (parseFloat(faucetBalance) < 10000 || parseFloat(faucetEtnBalance) < 0.5))}
             className={`w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition duration-200 ease-in-out transform hover:scale-105 ${isSending || (faucetBalance !== null && faucetEtnBalance !== null && (parseFloat(faucetBalance) < 10000 || parseFloat(faucetEtnBalance) < 0.5)) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
@@ -264,17 +271,17 @@ export default function Home() {
             </div>
           )}
         </div>
-  
+
         {statusMessage && (
           <div className={`mt-6 p-4 rounded-lg ${statusMessage.includes('Success')
             ? 'bg-green-900 text-green-200 border border-green-700'
             : 'bg-yellow-900 text-yellow-200 border border-yellow-700'
-          }`}>
+            }`}>
             {statusMessage}
           </div>
         )}
       </main>
-  
+
       <footer className="bg-black p-4 border-t border-gray-800">
         <div className="max-w-7xl mx-auto text-center text-gray-400">
           Made with <span className="text-red-500">❤️</span> by{' '}
