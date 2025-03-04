@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
 @import "tailwindcss";
+
 
 @tailwind base;
 @tailwind components;
@@ -7,6 +9,10 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 :root {
